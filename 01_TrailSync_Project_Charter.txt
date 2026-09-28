@@ -1,0 +1,19 @@
+TrailSync - Project Charter & Architecture
+
+Baseline
+Internal project document | Version 1.0 | 03 October 2026
+
+Project: TrailSync - Offline Field Coordination Platform
+
+1. Executive Summary
+TrailSync is a prototype platform for small field teams that need to coordinate tasks, observations and handover summaries. For the pilot, SQLite is the confirmed primary data store. The design should keep persistence behind a service boundary so that the storage engine can be revisited later.
+
+2. Architecture Decisions
+Backend service: Node.js with NestJS
+Mobile client: Flutter
+Pilot field site: Ramanagara test zone
+Pilot review date: 22 November 2026
+React Native was discussed but not chosen. Redis may be considered in the future but is not selected.
+
+3. Action Items
+Vasu should send the revised demo brief to the team before 8 October.

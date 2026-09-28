@@ -1,0 +1,43 @@
+Project Overview
+
+OwnMind AI is a sovereign second brain for project teams.
+
+Demo Schedule
+
+The demo was originally planned for 7 October.
+
+Meeting Update
+
+The demo was moved to 9 October because sensor delivery was delayed.
+
+Backend Decision
+
+The team initially selected Flask but later changed to FastAPI.
+
+Repeated Content 1
+
+OwnMind AI is a sovereign second brain for project teams.
+The demo was originally planned for 7 October.
+The demo was moved to 9 October because sensor delivery was delayed.
+The team initially selected Flask but later changed to FastAPI.
+
+Repeated Content 2
+
+OwnMind AI is a sovereign second brain for project teams.
+The demo was originally planned for 7 October.
+The demo was moved to 9 October because sensor delivery was delayed.
+The team initially selected Flask but later changed to FastAPI.
+
+Repeated Content 3
+
+OwnMind AI is a sovereign second brain for project teams.
+The demo was originally planned for 7 October.
+The demo was moved to 9 October because sensor delivery was delayed.
+The team initially selected Flask but later changed to FastAPI.
+
+Repeated Content 4
+
+OwnMind AI is a sovereign second brain for project teams.
+The demo was originally planned for 7 October.
+The demo was moved to 9 October because sensor delivery was delayed.
+The team initially selected Flask but later changed to FastAPI.

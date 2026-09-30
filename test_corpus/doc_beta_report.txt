@@ -1,0 +1,31 @@
+# FICTIONAL DEVELOPMENT DOCUMENT — StreamMind RAG Test Corpus
+# Document: Beta Project Status Report
+# Purpose: Used only for StreamMind pipeline testing. Contains invented facts.
+
+## Beta Project Overview
+
+Beta Project is a separate fictional analytics dashboard platform.
+Beta Project is NOT related to Alpha Project.
+Beta Project uses a different technology stack: the backend is written in Python using FastAPI.
+
+## Team
+
+The project lead for Beta Project is Aisha Okonkwo.
+The deployment engineer is Sam Patel.
+Aisha Okonkwo joined the Beta Project on January 15, 2025.
+
+## Infrastructure
+
+Beta Project uses MongoDB as its primary database (NOT PostgreSQL).
+The caching layer for Beta Project uses Memcached, not Redis.
+Beta Project is deployed to the eu-west-1 AWS region.
+
+## Budget
+
+The Q2 2025 infrastructure budget for Beta Project is USD 8,200 per month.
+This was approved on January 28, 2025.
+
+## Important Distinction
+
+Jordan Chen is NOT the lead of Beta Project — Jordan leads Alpha Project only.
+The Beta Project budget is separate from Alpha Project's budget and must not be combined.

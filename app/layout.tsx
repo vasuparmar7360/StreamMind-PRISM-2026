@@ -20,7 +20,7 @@ const displayFallback = Fraunces({
 })
 
 export const metadata: Metadata = {
-  title: 'OwnMind AI — Sovereign Second Brain for Project Teams',
+  title: 'StreamMind AI — Sovereign Second Brain for Project Teams',
   description:
     'A local-first, privacy-preserving project intelligence workspace. Your knowledge, decisions and actions stay under your control.',
   generator: 'v0.app',

@@ -2,7 +2,7 @@
  * Centralized API client for communicating with the FastAPI backend.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8001';
 
 export interface ActionRecord {
   id: string;
@@ -168,6 +168,9 @@ export interface AskResponse {
   answer: string;
   model: string | null;
   sources: AskSource[];
+  session_id: string | null;
+  answer_version?: number;
+  what_changed?: string;
 }
 
 /**
@@ -235,10 +238,20 @@ export const api = {
   /**
    * Ask a question and get grounded evidence from the backend
    */
-  askOwnMind: async (question: string, topK: number = 5): Promise<AskResponse> => {
+  askStreamMind: async (question: string, topK: number = 5, sessionId?: string): Promise<AskResponse> => {
     return await fetchFromAPI<AskResponse>('/api/ask', {
       method: 'POST',
-      body: JSON.stringify({ question, top_k: topK }),
+      body: JSON.stringify({ question, top_k: topK, session_id: sessionId ?? null }),
+    });
+  },
+
+  /**
+   * Start a new conversation session (returns a fresh session_id)
+   * Documents and indexes are preserved — only conversational context is reset.
+   */
+  newSession: async (): Promise<{ session_id: string; status: string }> => {
+    return await fetchFromAPI<{ session_id: string; status: string }>('/api/ask/new-session', {
+      method: 'POST',
     });
   },
 
@@ -373,5 +386,62 @@ export const api = {
       chunk_overlap_words: number;
       search_top_k: number;
     }>('/api/settings');
+  },
+
+  /**
+   * Send one transcript chunk to the backend controller.
+   * Returns { status, decision, seq }.
+   */
+  transcriptChunk: async (params: {
+    session_id: string;
+    request_id: string;
+    seq: number;
+    text: string;
+  }): Promise<{ status: string; decision?: string; seq: number }> => {
+    return await fetchFromAPI('/api/transcript/chunk', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
+  /**
+   * Signal final-input: transcript replay is complete, generate the answer.
+   * Returns { status, answer, timing, activity, early_retrieval_before_final }.
+   */
+  transcriptFinal: async (params: {
+    session_id: string;
+    request_id: string;
+  }): Promise<any> => {
+    return await fetchFromAPI('/api/transcript/final', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
+  /**
+   * Stop/cancel the current transcript request.
+   */
+  transcriptStop: async (params: {
+    session_id: string;
+    request_id: string;
+  }): Promise<{ status: string }> => {
+    return await fetchFromAPI('/api/transcript/stop', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  },
+
+  /**
+   * Returns the SSE stream URL (use with EventSource, not fetchFromAPI).
+   */
+  transcriptStreamUrl: (session_id: string): string => {
+    return `${API_BASE_URL}/api/transcript/stream/${session_id}`;
+  },
+
+  /**
+   * Export the trace of a session.
+   */
+  exportSessionTrace: async (session_id: string): Promise<any> => {
+    return await fetchFromAPI(`/api/transcript/export/${session_id}`);
   },
 };

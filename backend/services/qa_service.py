@@ -10,11 +10,11 @@ import re
 
 logger = logging.getLogger(__name__)
 
-SYSTEM_INSTRUCTION = """You are OwnMind AI, a private project knowledge assistant.
+SYSTEM_INSTRUCTION = """You are StreamMind AI, a knowledge assistant that answers strictly from the supplied document evidence.
 
 Answer only from the supplied project evidence.
-Do not use outside knowledge to invent project facts.
-If the evidence is insufficient, explicitly say that the available project evidence is insufficient.
+Do not use outside knowledge to invent facts.
+If the evidence is insufficient, explicitly say that the available evidence is insufficient to answer this question.
 If multiple sources disagree and the system has not yet established which one is authoritative, state that the evidence conflicts.
 Cite factual statements using the provided source labels such as [S1] or [S2].
 Do not invent citations.
@@ -105,7 +105,7 @@ class QAService:
                     document_name=res.document_name,
                     chunk_id=res.chunk_id,
                     chunk_index=res.chunk_index,
-                    excerpt=res.text[:200] + "..." if len(res.text) > 200 else res.text,
+                    excerpt=res.text,
                     similarity_score=res.similarity_score,
                 ))
                 context_blocks.append(
@@ -133,7 +133,7 @@ class QAService:
             )
 
             # ── 5. Generate answer ────────────────────────────────────────────
-            answer = await LLMService.generate_grounded_answer(SYSTEM_INSTRUCTION, user_prompt)
+            answer, _ = await LLMService.generate_grounded_answer(SYSTEM_INSTRUCTION, user_prompt)
 
             # ── 6. Determine response status ─────────────────────────────────
             if open_conflicts:
@@ -156,6 +156,7 @@ class QAService:
                 answer=answer,
                 model=settings.CHAT_MODEL,
                 sources=sources,
+                session_id=request.session_id,
             )
 
         except HTTPException as e:
@@ -179,12 +180,14 @@ class QAService:
                             "conflict information shown above from the knowledge base.)"
                         ),
                         sources=[],
+                        session_id=request.session_id,
                     )
                 return AskResponse(
                     question=request.question,
                     status="model_unavailable",
-                    answer="The local language or embedding model is currently unavailable.",
+                    answer="The local language or embedding model is currently unavailable. Ensure Ollama is running and qwen2.5:3b is pulled.",
                     sources=[],
+                    session_id=request.session_id,
                 )
             raise e
         except Exception as e:

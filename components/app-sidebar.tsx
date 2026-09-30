@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { ArrowRight, Cpu, CloudOff } from "lucide-react"
+import { ArrowRight, Cpu, CloudOff, Database } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { navItems } from "@/lib/navigation"
 import { Progress } from "@/components/ui/progress"
@@ -38,6 +38,8 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   const isOnline = systemStatus?.ollama?.status === "online"
   const chatModelName = systemStatus?.chat_model?.name || "Unknown Model"
+  const isDbOnline = systemStatus?.database?.status === "online"
+  const embModelName = systemStatus?.embedding_model?.name || "Unknown Embedding"
   
   return (
     <aside className="workspace-sidebar flex h-full shrink-0 flex-col">
@@ -52,7 +54,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           <span className="absolute -top-1 -right-1 size-2 rounded-full bg-success" />
         </div>
         <div className="leading-tight">
-          <p className="font-display text-xl text-sidebar-foreground">OwnMind</p>
+          <p className="font-display text-xl text-sidebar-foreground">StreamMind</p>
           <p className="text-[10px] tracking-[.2em] text-muted-foreground uppercase">Sovereign ledger</p>
         </div>
       </div>
@@ -142,19 +144,56 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           )}
         </div>
 
-        <div className="mt-3 flex items-center gap-2.5">
-          {isOnline ? (
-            <Cpu aria-hidden="true" className="size-4 text-brand-primary" />
-          ) : (
-            <CloudOff aria-hidden="true" className="size-4 text-danger" />
-          )}
-          <div className="leading-tight">
-            <p className={cn("text-xs font-semibold", isOnline ? "text-sidebar-foreground" : "text-danger")}>
-              {isOnline ? chatModelName : "Unavailable"}
-            </p>
-            <p className="text-[10px] text-muted-foreground">
-              {isOnline ? "Running on this device" : "Engine is offline"}
-            </p>
+        <div className="mt-3 flex flex-col gap-2.5">
+          {/* Generation Model */}
+          <div className="flex items-center gap-2.5">
+            {isOnline ? (
+              <Cpu aria-hidden="true" className="size-4 text-brand-primary" />
+            ) : (
+              <CloudOff aria-hidden="true" className="size-4 text-danger" />
+            )}
+            <div className="leading-tight">
+              <p className={cn("text-xs font-semibold", isOnline ? "text-sidebar-foreground" : "text-danger")}>
+                {isOnline ? chatModelName : "Generation Unavailable"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {isOnline ? "Running locally" : "Offline"}
+              </p>
+            </div>
+          </div>
+          
+          {/* Embedding Model */}
+          <div className="flex items-center gap-2.5">
+            {isOnline ? (
+              <Cpu aria-hidden="true" className="size-4 text-brand-secondary" />
+            ) : (
+              <CloudOff aria-hidden="true" className="size-4 text-danger" />
+            )}
+            <div className="leading-tight">
+              <p className={cn("text-xs font-semibold", isOnline ? "text-sidebar-foreground" : "text-danger")}>
+                {isOnline ? embModelName : "Embedding Unavailable"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {isOnline ? "Vector embedding active" : "Offline"}
+              </p>
+            </div>
+          </div>
+
+          {/* Database */}
+          <div className="flex items-center gap-2.5">
+            {isDbOnline ? (
+              <Database aria-hidden="true" className="size-4 text-success" />
+            ) : (
+              <CloudOff aria-hidden="true" className="size-4 text-danger" />
+            )}
+            <div className="leading-tight">
+              <p className={cn("text-xs font-semibold", isDbOnline ? "text-sidebar-foreground" : "text-danger")}>
+                {isDbOnline ? "PostgreSQL / pgvector" : "Database Offline"}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {isDbOnline ? "Storage connected" : "Connection failed"}
+              </p>
+            </div>
           </div>
         </div>
 

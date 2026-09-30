@@ -198,7 +198,7 @@ export function ActionsPage() {
           </span>
         </h1>
         <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-text-muted">
-          Review, approve and control every action before OwnMind executes it.
+          Review, approve and control every action before StreamMind executes it.
         </p>
 
         {/* ─── CORE PRINCIPLE: AI NEVER HAS DIRECT EXECUTION AUTHORITY ──────── */}
@@ -291,7 +291,7 @@ export function ActionsPage() {
               Pending Actions
             </h2>
             <p className="mt-0.5 text-xs text-text-muted">
-              Actions proposed by OwnMind awaiting explicit human authorization
+              Actions proposed by StreamMind awaiting explicit human authorization
             </p>
           </div>
           <Badge variant="pending">
@@ -644,7 +644,7 @@ export function ActionsPage() {
                   </div>
                   <div className="flex justify-between border-b border-border/50 pb-2">
                     <span className="text-text-muted">Requested By:</span>
-                    <span className="font-medium text-text-primary">OwnMind AI</span>
+                    <span className="font-medium text-text-primary">StreamMind AI</span>
                   </div>
                   <div>
                     <span className="text-[10px] font-medium uppercase tracking-wider text-text-muted block mb-1">

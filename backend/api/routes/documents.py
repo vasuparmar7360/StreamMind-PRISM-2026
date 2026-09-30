@@ -73,9 +73,46 @@ async def upload_document(
 @router.post("/{document_id}/index", summary="Index document locally")
 async def index_document(document_id: str = FastAPIPath(...), db: Session = Depends(get_db)):
     """
-    Extracts text, chunks, embeds, and saves safely to Postgres.
+    Extracts text, chunks, embeds, and saves to Postgres.
+    Safe to call on a fresh upload. Use /reindex to retry a failed document.
     """
     return await IndexingService.index_document(db, document_id)
+
+@router.post("/{document_id}/reindex", summary="Retry indexing for a failed document")
+async def reindex_document(
+    background_tasks: BackgroundTasks,
+    document_id: str = FastAPIPath(...),
+    db: Session = Depends(get_db)
+):
+    """
+    Clears any existing chunks for this document and re-runs the full indexing pipeline.
+    Use this when a document previously failed (e.g. because Ollama was unavailable).
+    Duplicate chunks are prevented — all prior chunks are removed before re-indexing.
+    """
+    from backend.services.database_service import DatabaseService
+    from backend.db.models import DocumentChunk
+    db_doc = DatabaseService.get_document(db, document_id)
+    if not db_doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+    # Clear stale chunks to prevent duplicates
+    db.query(DocumentChunk).filter(DocumentChunk.document_id == document_id).delete()
+    db.commit()
+    # Reset to uploaded so indexing pipeline runs cleanly
+    DatabaseService.update_document_status(db, document_id, "uploaded")
+
+    async def bg_reindex(doc_id: str):
+        from backend.db.session import SessionLocal
+        db_bg = SessionLocal()
+        try:
+            await IndexingService.index_document(db_bg, doc_id)
+        except Exception:
+            pass
+        finally:
+            db_bg.close()
+
+    background_tasks.add_task(bg_reindex, document_id)
+    return {"status": "reindex_started", "document_id": document_id}
+
 
 @router.get("/{document_id}/text", response_model=DocumentTextResponse, summary="Extract text from a document")
 async def extract_document_text(document_id: str = FastAPIPath(..., description="The unique ID of the uploaded document")):

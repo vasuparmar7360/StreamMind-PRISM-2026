@@ -11,21 +11,29 @@ import {
   Send,
   AlertTriangle,
   Loader2,
+  Radio,
+  MessageSquare,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { sampleSuggestions } from "@/lib/ask-data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { api, AskResponse } from "@/lib/api"
+import { LiveTranscriptPanel } from "@/components/live-transcript-panel"
 
 export function AskPage() {
   const evidenceNodes = useRef<Map<string, HTMLDivElement>>(new Map())
   const [inputValue, setInputValue] = useState<string>("")
   const [selectedSourceId, setSelectedSourceId] = useState<string | null>(null)
-  
+  const sessionId = useRef<string>(crypto.randomUUID())
+  const [mode, setMode] = useState<"normal" | "live">("normal")
+
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [response, setResponse] = useState<AskResponse | null>(null)
   const [backendError, setBackendError] = useState<string | null>(null)
+  const [hasTrace, setHasTrace] = useState<boolean>(false)
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
+  const [isExporting, setIsExporting] = useState<boolean>(false)
 
   useEffect(() => {
     if (!selectedSourceId) return
@@ -49,10 +57,12 @@ export function AskPage() {
     setSelectedSourceId(null)
 
     try {
-      const res = await api.askOwnMind(inputValue.trim())
+      const res = await api.askStreamMind(inputValue.trim(), 5, sessionId.current)
       setResponse(res)
+      setHasTrace(true)
+      if (res.session_id) setActiveSessionId(res.session_id)
     } catch (err: any) {
-      setBackendError(err.message || "OwnMind backend is unavailable.")
+      setBackendError(err.message || "StreamMind backend is unavailable.")
     } finally {
       setIsLoading(false)
       setInputValue("")
@@ -84,7 +94,7 @@ export function AskPage() {
         <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Ask{" "}
           <span className="bg-gradient-to-r from-brand-primary via-brand-primary-hover to-brand-secondary bg-clip-text text-transparent">
-            OwnMind
+            StreamMind
           </span>
         </h1>
         <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-text-muted">
@@ -127,8 +137,115 @@ export function AskPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* ─── LEFT COLUMN (approx 65%) ────────────────────────────────────── */}
         <div className="space-y-6 lg:col-span-8">
-          
-          {/* User Question Input Box */}
+
+          {/* ─── MODE TOGGLE ─────────────────────────────────────────────────── */}
+          <div className="flex items-center gap-2 rounded-xl border border-border bg-surface/60 p-1">
+            <button
+              id="mode-normal"
+              onClick={() => setMode("normal")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 rounded-lg py-1.5 text-xs font-semibold transition-all",
+                mode === "normal"
+                  ? "bg-brand-primary/20 text-brand-primary-hover shadow-sm"
+                  : "text-muted-foreground hover:text-text-primary"
+              )}
+            >
+              <MessageSquare className="size-3" />
+              Normal Question
+            </button>
+            <button
+              id="mode-live"
+              onClick={() => setMode("live")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 rounded-lg py-1.5 text-xs font-semibold transition-all",
+                mode === "live"
+                  ? "bg-brand-primary/20 text-brand-primary-hover shadow-sm"
+                  : "text-muted-foreground hover:text-text-primary"
+              )}
+            >
+              <Radio className="size-3" />
+              Live Transcript Replay
+            </button>
+          </div>
+
+          {/* ─── SESSION CONTROLS ─────────────────────────────────────────────── */}
+          <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={isLoading}
+                onClick={async () => {
+                  try {
+                    const ns = await api.newSession()
+                    sessionId.current = ns.session_id
+                  } catch {
+                    // Fallback: generate locally if backend unreachable
+                    sessionId.current = crypto.randomUUID()
+                  }
+                  setInputValue("")
+                  setResponse(null)
+                  setBackendError(null)
+                  setSelectedSourceId(null)
+                  setHasTrace(false)
+                  setActiveSessionId(null)
+                }}
+                className="gap-1.5 text-xs rounded-xl flex-1"
+              >
+                New Session
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                disabled={isExporting || !hasTrace || !activeSessionId}
+                onClick={async () => {
+                  if (isExporting || !activeSessionId) return;
+                  setIsExporting(true);
+                  try {
+                    const trace = await api.exportSessionTrace(activeSessionId);
+                    const blob = new Blob([JSON.stringify(trace, null, 2)], { type: "application/json" });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `streammind-trace-${activeSessionId}.json`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                  } catch (e: any) {
+                    if (e.status === 404) {
+                      console.warn("Session data expired or not found on backend.");
+                      alert("The trace for this session has expired or was cleared by the backend. Please start a new session.");
+                    } else {
+                      console.error("Export failed", e);
+                      alert(`Export failed: ${e.message || "Unknown error"}`);
+                    }
+                  } finally {
+                    setIsExporting(false);
+                  }
+                }}
+                className="gap-1.5 text-xs rounded-xl flex-1"
+              >
+                {isExporting ? <Loader2 className="size-3 animate-spin" /> : "Export Trace"}
+              </Button>
+          </div>
+
+          {/* ─── LIVE TRANSCRIPT MODE ─────────────────────────────────────────── */}
+          {mode === "live" && (
+            <div className="rounded-2xl border border-border bg-surface/70 p-5">
+              <LiveTranscriptPanel
+                sessionId={sessionId.current}
+                onAnswerReady={(res) => {
+                  setHasTrace(true)
+                  if (res?.answer?.session_id) setActiveSessionId(res.answer.session_id)
+                }}
+              />
+            </div>
+          )}
+
+          {/* ─── NORMAL QUESTION MODE ─────────────────────────────────────────── */}
+          {mode === "normal" && (
           <div className="space-y-3">
             <form
               onSubmit={handleCustomSubmit}
@@ -175,6 +292,7 @@ export function AskPage() {
               </div>
             </div>
           </div>
+          )} {/* end mode === normal */}
 
           {/* Loading State */}
           {isLoading && (
@@ -192,7 +310,7 @@ export function AskPage() {
             </div>
           )}
 
-          {/* OwnMind Response Section */}
+          {/* StreamMind Response Section */}
           {response && !isLoading && (
             <div className="space-y-6">
               {/* User Question */}
@@ -224,26 +342,41 @@ export function AskPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <p className="text-xs font-semibold text-text-primary">OwnMind</p>
+                        <p className="text-xs font-semibold text-text-primary">StreamMind</p>
                         {response.model && (
                           <span className="rounded bg-brand-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-brand-primary-hover">
                             Local {response.model}
                           </span>
                         )}
                       </div>
-                      <p className="text-[10px] text-text-muted">Sovereign Memory & Lineage Engine</p>
+                        <p className="text-[10px] text-text-muted">Sovereign Memory & Lineage Engine</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {response.answer_version && response.answer_version > 1 && (
+                        <Badge variant="outline" className="border-brand-primary/30 text-brand-primary-hover text-[10px]">
+                          v{response.answer_version}
+                        </Badge>
+                      )}
+                      {isConflict && (
+                        <Badge variant="conflict">
+                          <span className="size-1 rounded-full bg-destructive" />
+                          CONFLICT DETECTED
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
-                  {isConflict && (
-                    <Badge variant="conflict">
-                      <span className="size-1 rounded-full bg-destructive" />
-                      CONFLICT DETECTED
-                    </Badge>
+                  {/* What Changed Summary */}
+                  {response.what_changed && (
+                    <div className="mb-4 rounded-xl border border-white/5 bg-white/[0.02] p-3 text-xs text-text-secondary">
+                      <span className="font-semibold text-text-primary mr-2">Update:</span>
+                      {response.what_changed}
+                    </div>
                   )}
-                </div>
 
-                {/* Answer text paragraphs */}
+                  {/* Answer text paragraphs */}
                 {isModelUnavailable ? (
                    <div className="flex items-center gap-3 p-4 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive text-sm font-medium">
                      <AlertTriangle className="size-5" />

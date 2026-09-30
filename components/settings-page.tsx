@@ -345,7 +345,7 @@ export function SettingsPage() {
                 Memory Control Center
               </h2>
               <p className="mt-0.5 text-xs text-text-muted">
-                See exactly what OwnMind remembers, inspect provenance, and manage it.
+                See exactly what StreamMind remembers, inspect provenance, and manage it.
               </p>
             </div>
 
@@ -529,7 +529,7 @@ export function SettingsPage() {
               <ShieldAlert className="size-4 shrink-0 mt-0.5" />
               <span>
                 <strong>Workspace Boundary Invariant: </strong>
-                OwnMind cannot execute tools outside the approved workspace directory. Direct execution without approval is blocked.
+                StreamMind cannot execute tools outside the approved workspace directory. Direct execution without approval is blocked.
               </span>
             </div>
           </div>
@@ -1046,7 +1046,7 @@ export function SettingsPage() {
               <div>
                 <h3 className="text-base font-semibold text-text-primary">Delete Memory?</h3>
                 <p className="mt-1 text-xs text-text-muted leading-relaxed">
-                  This removes the selected memory from OwnMind’s active memory store.
+                  This removes the selected memory from StreamMind’s active memory store.
                   <br />
                   <strong className="text-foreground">Source files will not be deleted.</strong>
                 </p>

@@ -91,11 +91,22 @@ class IndexingService:
                     document_id, chunking_response.original_name, chunking_response.chunks
                 )
                 
-                # Save Decisions
+                # Save Decisions — convert dicts to DecisionCandidate objects
                 if results["decisions"]:
-                    DecisionMemoryService.process_decision_candidates(
-                        db, document_id, chunking_response.original_name, results["decisions"]
-                    )
+                    from backend.models.decision import DecisionCandidate
+                    decision_candidates = []
+                    for d in results["decisions"]:
+                        if isinstance(d, dict):
+                            try:
+                                decision_candidates.append(DecisionCandidate(**d))
+                            except Exception as conv_err:
+                                logger.warning(f"Skipping invalid decision dict: {conv_err}")
+                        else:
+                            decision_candidates.append(d)
+                    if decision_candidates:
+                        DecisionMemoryService.process_decision_candidates(
+                            db, document_id, chunking_response.original_name, decision_candidates
+                        )
                 
                 # Save Entities
                 for e_data in results["entities"]:

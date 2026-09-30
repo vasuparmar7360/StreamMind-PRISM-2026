@@ -51,6 +51,11 @@ class TextExtractionService:
                     for page in reader.pages:
                         page_text = page.extract_text()
                         if page_text:
+                            import re
+                            page_text = re.sub(r'Page\n+(\d+)', r'Page: \1', page_text)
+                            page_text = re.sub(r'Section\n+(.+)', r'Section: \1', page_text)
+                            page_text = re.sub(r'Document ID\n+(.+)', r'Document ID: \1', page_text)
+                            page_text = re.sub(r'Document Date\n+(.+)', r'Document Date: \1', page_text)
                             text_parts.append(page_text)
                     extracted_text = "\n".join(text_parts)
                 except Exception as e:
@@ -71,7 +76,7 @@ class TextExtractionService:
 
         extracted_text = extracted_text.strip()
         if not extracted_text:
-            raise HTTPException(status_code=400, detail="Document contains no extractable text")
+            raise HTTPException(status_code=400, detail="Document contains no extractable text. OCR is required for scanned documents.")
 
         char_count = len(extracted_text)
         word_count = len(extracted_text.split())

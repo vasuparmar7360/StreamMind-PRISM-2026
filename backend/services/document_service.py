@@ -6,7 +6,7 @@ from fastapi import UploadFile, HTTPException
 from backend.core.config import settings
 from backend.models.document import DocumentResponse
 
-UPLOAD_DIR = Path("data/uploads")
+UPLOAD_DIR = Path("data/streammind_uploads")
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt", ".md"}
 
 class DocumentService:

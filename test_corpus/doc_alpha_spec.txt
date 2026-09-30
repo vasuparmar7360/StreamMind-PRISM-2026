@@ -1,0 +1,32 @@
+# FICTIONAL DEVELOPMENT DOCUMENT — StreamMind RAG Test Corpus
+# Document: Alpha Project Technical Specification
+# Purpose: Used only for StreamMind pipeline testing. Contains invented facts.
+
+## Alpha Project Overview
+
+Alpha Project is a fictional data pipeline management system.
+The backend service is written in Go and runs on Kubernetes.
+The primary database used by Alpha Project is PostgreSQL version 15.
+
+## Team and Roles
+
+The project lead for Alpha Project is Jordan Chen.
+The QA lead is Priya Nair.
+Jordan Chen joined the project on March 1, 2025.
+
+## Architecture Decisions
+
+The team decided to use Redis for caching session tokens.
+The API gateway is implemented using Nginx.
+Authentication is handled via OAuth 2.0 with JWT tokens.
+
+## Deployment
+
+Alpha Project is deployed to the us-east-1 AWS region.
+The production cluster uses 4 replicas for high availability.
+The CI/CD pipeline uses GitHub Actions and deploys every Tuesday.
+
+## Budget
+
+The Q2 2025 infrastructure budget for Alpha Project is USD 12,500 per month.
+This figure was approved on February 10, 2025, by the CTO.

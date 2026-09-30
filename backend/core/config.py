@@ -4,7 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    """Centralized configuration for OwnMind AI Backend."""
+    """Centralized configuration for StreamMind AI Backend."""
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -13,12 +13,12 @@ class Settings(BaseSettings):
         case_sensitive=True,
     )
 
-    APP_NAME: str = "OwnMind AI Backend"
+    APP_NAME: str = "StreamMind AI Backend"
     APP_VERSION: str = "0.1.0"
     HOST: str = "127.0.0.1"
-    PORT: int = 8000
+    PORT: int = 8001
     DEBUG: bool = True
-    FRONTEND_URL: str = "http://localhost:3000"
+    FRONTEND_URL: str = "http://localhost:3001"
     MAX_UPLOAD_SIZE_MB: int = 25
     CHUNK_SIZE_WORDS: int = 600
     CHUNK_OVERLAP_WORDS: int = 100
@@ -38,10 +38,10 @@ class Settings(BaseSettings):
 
     # Default allowed origins for local development (supports list, comma-separated string, or JSON array)
     CORS_ORIGINS: Union[str, List[str]] = [
+        "http://localhost:3001",
+        "http://127.0.0.1:3001",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
     ]
 
     @property

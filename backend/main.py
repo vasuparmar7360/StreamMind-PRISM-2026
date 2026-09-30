@@ -2,6 +2,8 @@ import sys
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+import asyncio
 
 # Ensure the project root is in sys.path for clean, reliable imports
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -11,12 +13,26 @@ if str(PROJECT_ROOT) not in sys.path:
 from backend.core.config import settings
 from backend.api import api_router
 
+from backend.services.session_state import session_store
+
+async def session_cleanup_task():
+    while True:
+        await asyncio.sleep(60)
+        await session_store.cleanup_expired()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    cleanup_task = asyncio.create_task(session_cleanup_task())
+    yield
+    cleanup_task.cancel()
+
 app = FastAPI(
     title=settings.APP_NAME,
     description="Backend service for OwnMind AI — Sovereign Second Brain for Project Teams.",
     version=settings.APP_VERSION,
     docs_url="/docs",
     redoc_url="/redoc",
+    lifespan=lifespan,
 )
 
 # CORS configuration for local frontend communication
@@ -36,7 +52,7 @@ app.include_router(api_router, prefix="/api")
 async def root():
     """Root entry point confirming backend availability."""
     return {
-        "message": "OwnMind AI Backend is running",
+        "message": "StreamMind AI Backend is running",
         "docs": "/docs",
     }
 

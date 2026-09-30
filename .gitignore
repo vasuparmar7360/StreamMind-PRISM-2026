@@ -29,3 +29,16 @@ build/
 # Backend Data
 data/uploads/*
 !data/uploads/.gitkeep
+data/streammind_uploads/*
+!data/streammind_uploads/.gitkeep
+
+# Test artifacts & traces
+trace_*.json
+eval_results.json
+test_out.txt
+
+# Scratch / debug scripts (keep intentional test files)
+fix_test.py
+parse_pdf.py
+replace_name.py
+test_doc.txt

@@ -29,23 +29,23 @@ class RetrievalService:
             if not has_indexed:
                 return SearchResponse(query=query_text, total_results=0, results=[])
 
-            # 3. Perform pgvector cosine similarity search
-            # pgvector's <=> operator computes cosine distance. Similarity is 1 - distance.
-            # We filter by Document.status == "indexed" to avoid unindexed or failed docs.
-            
-            cosine_distance = DocumentChunk.embedding.cosine_distance(query_embedding)
-            similarity = (1.0 - cosine_distance).label("similarity")
-            
-            results = (
-                db.query(DocumentChunk, Document, similarity)
-                .join(Document, DocumentChunk.document_id == Document.id)
-                .filter(Document.status == "indexed")
-                .filter(DocumentChunk.embedding.is_not(None))
-                .filter(similarity >= settings.SEARCH_MIN_SIMILARITY)
-                .order_by(cosine_distance)
-                .limit(request.top_k)
-                .all()
-            )
+            # 3. Perform pgvector cosine similarity search in a thread pool
+            def _db_query(emb):
+                cosine_distance = DocumentChunk.embedding.cosine_distance(emb)
+                similarity = (1.0 - cosine_distance).label("similarity")
+                return (
+                    db.query(DocumentChunk, Document, similarity)
+                    .join(Document, DocumentChunk.document_id == Document.id)
+                    .filter(Document.status == "indexed")
+                    .filter(DocumentChunk.embedding.is_not(None))
+                    .filter(similarity >= settings.SEARCH_MIN_SIMILARITY)
+                    .order_by(cosine_distance)
+                    .limit(request.top_k)
+                    .all()
+                )
+
+            import asyncio
+            results = await asyncio.to_thread(_db_query, query_embedding)
             
             search_results = []
             for chunk, doc, sim in results:

@@ -34,7 +34,7 @@ export function WorkspaceShell({ children }: { children: ReactNode }) {
       <div className="desktop-navigation"><AppSidebar /></div>
       <Sheet open={navigationOpen} onOpenChange={setNavigationOpen}>
         <SheetContent side="left" className="mobile-navigation gap-0 p-0">
-          <SheetTitle className="sr-only">OwnMind AI navigation</SheetTitle>
+          <SheetTitle className="sr-only">StreamMind AI navigation</SheetTitle>
           <SheetDescription className="sr-only">Navigate your sovereign workspace.</SheetDescription>
           <AppSidebar onNavigate={() => setNavigationOpen(false)} />
         </SheetContent>

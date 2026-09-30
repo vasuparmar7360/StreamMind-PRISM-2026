@@ -287,8 +287,8 @@ function ConflictCard({ conflict }: { conflict: ConflictDecision }) {
           <div className="flex items-start gap-2.5">
             <AlertTriangle className="mt-0.5 size-3.5 shrink-0 text-warning" />
             <p className="text-xs leading-relaxed text-warning/90">
-              <span className="font-semibold">OwnMind found two valid sources</span> and cannot determine which
-              decision is current. Human review required — OwnMind will not hallucinate a resolution.
+              <span className="font-semibold">StreamMind found two valid sources</span> and cannot determine which
+              decision is current. Human review required — StreamMind will not hallucinate a resolution.
             </p>
           </div>
         </div>
@@ -485,7 +485,7 @@ function DetailPanel({
         </Button>
         <Button variant="outline" size="sm" className="flex-1 gap-1.5 text-xs">
           <Sparkles className="size-3.5" />
-          Ask OwnMind
+          Ask StreamMind
         </Button>
         <Button variant="default" size="sm" className="flex-1 gap-1.5 text-xs">
           <Zap className="size-3.5" />
@@ -559,7 +559,7 @@ export function DecisionsPage() {
           reason: previousEntry.reason || undefined
         } : undefined,
         relatedPeople: [],
-        relatedProject: "OwnMind AI",
+        relatedProject: "StreamMind AI",
         actionHistory: []
       })
     } catch (err) {
@@ -714,7 +714,7 @@ export function DecisionsPage() {
                     Conflicts Detected
                   </h2>
                   <p className="mt-0.5 text-xs text-muted-foreground/60">
-                    OwnMind does not resolve ambiguity automatically — human review required
+                    StreamMind does not resolve ambiguity automatically — human review required
                   </p>
                 </div>
                 <Badge variant="conflict">

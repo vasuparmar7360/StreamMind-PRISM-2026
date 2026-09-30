@@ -574,6 +574,18 @@ Please keep changes scoped and include tests for any new RAG pipeline logic.
 
 ---
 
+## Resources
+
+### 📁 Project Assets (Google Drive)
+
+All demo assets, presentation slides, architecture diagrams, and supplementary documentation are available here:
+
+**[🔗 StreamMind PRISM 2026 — Google Drive](https://drive.google.com/drive/folders/1PMS4ymYu774PWlgXPrteUA35hcpyKjZ6?usp=drive_link)**
+
+> Includes: demo PDF, screenshots, slide deck, and evaluation traces.
+
+---
+
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
@@ -583,5 +595,7 @@ MIT License — see [LICENSE](LICENSE) for details.
 <div align="center">
 
 Built with ❤️ for local-first AI · **StreamMind PRISM 2026**
+
+[📁 Google Drive Assets](https://drive.google.com/drive/folders/1PMS4ymYu774PWlgXPrteUA35hcpyKjZ6?usp=drive_link) · [GitHub](https://github.com/vasuparmar7360/StreamMind-PRISM-2026)
 
 </div>
